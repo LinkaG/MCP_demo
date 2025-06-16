@@ -137,7 +137,6 @@ example/
 ├── test_mcp_direct.py       # Прямые тесты MCP протокола
 ├── requirements.txt         # Зависимости Python
 ├── README.md               # Документация
-├── index.mjs               # JavaScript пример MCP
 ├── env_example.txt         # Пример переменных окружения
 └── .gitignore              # Git ignore файл
 ```
