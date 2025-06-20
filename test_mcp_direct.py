@@ -7,17 +7,23 @@ import json
 import subprocess
 import sys
 import time
+import os
 
 def test_mcp_server():
     print("🧪 Тестирование MCP сервера...")
     
-    # Запускаем сервер
+    # Запускаем сервер с UTF-8 кодировкой
+    env = os.environ.copy()
+    env['PYTHONIOENCODING'] = 'utf-8'
+    
     process = subprocess.Popen(
         [sys.executable, "standard_mcp_server.py"],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True
+        text=True,
+        encoding='utf-8',
+        env=env
     )
     
     try:
@@ -34,11 +40,12 @@ def test_mcp_server():
             }
         }
         
-        process.stdin.write(json.dumps(init_request) + "\n")
+        process.stdin.write(json.dumps(init_request, ensure_ascii=False) + "\n")
         process.stdin.flush()
         
         response = process.stdout.readline()
-        print(f"📥 Ответ: {response.strip()}")
+        response_obj = json.loads(response)
+        print(f"📥 Ответ: {json.dumps(response_obj, ensure_ascii=False, indent=2)}")
         
         # Тест 2: Tools list
         print("\n🔄 Тест 2: Tools list")
@@ -48,11 +55,12 @@ def test_mcp_server():
             "method": "tools/list"
         }
         
-        process.stdin.write(json.dumps(tools_request) + "\n")
+        process.stdin.write(json.dumps(tools_request, ensure_ascii=False) + "\n")
         process.stdin.flush()
         
         response = process.stdout.readline()
-        print(f"📥 Ответ: {response.strip()}")
+        response_obj = json.loads(response)
+        print(f"📥 Ответ: {json.dumps(response_obj, ensure_ascii=False, indent=2)}")
         
         # Тест 3: Generate password
         print("\n🔄 Тест 3: Generate password")
@@ -66,11 +74,12 @@ def test_mcp_server():
             }
         }
         
-        process.stdin.write(json.dumps(tool_request) + "\n")
+        process.stdin.write(json.dumps(tool_request, ensure_ascii=False) + "\n")
         process.stdin.flush()
         
         response = process.stdout.readline()
-        print(f"📥 Ответ: {response.strip()}")
+        response_obj = json.loads(response)
+        print(f"📥 Ответ: {json.dumps(response_obj, ensure_ascii=False, indent=2)}")
         
         print("\n✅ Все тесты выполнены!")
         

@@ -326,33 +326,40 @@ class StandardMCPServer:
             }
 
 def main():
-    """Основной цикл сервера"""
+    """Основная функция для запуска сервера"""
     server = StandardMCPServer()
     
-    # Сервер запущен и готов к работе
-    
-    try:
-        while True:
-            line = sys.stdin.readline()
-            if not line:
-                break
+    for line in sys.stdin:
+        try:
+            request = json.loads(line)
+            response = server.handle_request(request)
+            # Изменяем параметры json.dumps для корректного отображения русских символов
+            print(json.dumps(response, ensure_ascii=False))
+            sys.stdout.flush()
             
-            try:
-                request = json.loads(line.strip())
-                response = server.handle_request(request)
-                response_str = json.dumps(response)
-                print(response_str, flush=True)
-                
-            except json.JSONDecodeError as e:
-                error_response = {
-                    "jsonrpc": "2.0",
-                    "id": None,
-                    "error": {"code": -32700, "message": f"Parse error: {str(e)}"}
+        except json.JSONDecodeError:
+            print(json.dumps({
+                "jsonrpc": "2.0",
+                "id": None,
+                "error": {
+                    "code": -32700,
+                    "message": "Parse error"
                 }
-                print(json.dumps(error_response), flush=True)
-    
-    except KeyboardInterrupt:
-        print("Сервер остановлен", file=sys.stderr)
+            }, ensure_ascii=False))
+            sys.stdout.flush()
+            continue
+        
+        except Exception as e:
+            print(json.dumps({
+                "jsonrpc": "2.0",
+                "id": None,
+                "error": {
+                    "code": -32603,
+                    "message": f"Internal error: {str(e)}"
+                }
+            }, ensure_ascii=False))
+            sys.stdout.flush()
+            continue
 
 if __name__ == "__main__":
     main() 
